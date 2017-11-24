@@ -8,29 +8,35 @@ import {urls as defaultUrls, endpoints as defaultEndpoints} from '../defaults.js
 import eventEmitterMixin from '../eventEmitter/eventEmitterMixin.js';
 
 import User from '../User/User.js';
-import Data from '../Data/Data.js';
 
 /**
  * Contains all JS SDK API classes and functions.
  * This is the top level component for any Quickblox based application.
  * 
  * @extends {User}
+ * 
+ * @example
+ * import Quickblox from 'quickblox-javascript-sdk';
+ * // or require('quickblox-javascript-sdk');
+ * // or window.Quickblox
+ * 
+ * const creds = {
+ *   'appId': 5,
+ *   'authKey': 'KnUm1',
+ *   'authSecret': 'MKmn-asd1'
+ * };
+ * 
+ * const clientInstance = new QB(creds);
  */
 class Client extends User {
   /**
    * Creates an instance of Client.
-   * @param {Object} creds - all of this parameters you could found in admin panel.
+   * @param {object} creds - all of this parameters you could found in admin panel.
    * @param {number} creds.appId - The Id of uses app.
    * @param {string} [creds.authKey] - The authKey of uses app for authorization/ 
    * @param {string} [creds.authSecret] - Uses as salt.
    * @param {any} [opts={}]
    * @memberof Client
-   * 
-   * @example
-   * import QB from 'quickblox-javascript-sdk';
-   * 
-   * const creds = {'appId': 5, authKey: 'KnUm1', authSecret: 'MKmn-asd1'};
-   * const client = new QB(creds);
    */
   constructor(creds, opts = {}) {
     super();
@@ -59,10 +65,37 @@ class Client extends User {
   }
 
   /**
+   * Autorize client in Server API (without authorize in Chat or Calling).
+   * There 3 parameters you could pass to auth method:
+   *  - Nothing.
+   * At this way you auth by application session with READ only rights;
    * 
-   * @param {*} userCreds 
+   *  - A login & a password or an email & the password.
+   * At this way you auth as user with User session and CRUD rights;
+   * 
+   * @param {object} [creds] You pass 
+   * 
+   * @example 
+   * import Quickblox from 'quickblox-javascript-sdk';
+   * 
+   * const creds = {
+   *   'appId': 5,
+   *   'authKey': 'KnUm1',
+   *   'authSecret': 'MKmn-asd1'
+   * };
+   * 
+   * // or 
+   * // const creds = {'token': 'JydmzsuUjhnzx8asj'};
+   * 
+   * const clientInstance = new QB(creds);
+   * 
+   * clientInstance.auth().then( (token) => {
+   *   console.log(`Auth successful with token ${token}`)
+   * }).catch( (error) => {
+   *   console.error(`Auth successful with token ${err.message}`);
+   * });
    */
-  auth(userCreds) {
+  auth(creds) {
     const self = this;
 
     return new Promise((resolve, reject) => {
@@ -73,16 +106,13 @@ class Client extends User {
           self.session_token = data.token;
           self.user_id = data.user_id !== 0 ? data.user_id : null;
 
-          resolve();
+          resolve(self.session_token);
         }).catch(error => {
           reject(error);
         });
       }  
     });
   }
-
-  // Auth MODULE
-  // TODO: make pure function
   _createApplicationSession() {
     const self = this;
 
@@ -102,36 +132,36 @@ class Client extends User {
     });
   }
 
-  _authByExistSession(sessionToken) {
-    const self = this;
+  // _authByExistSession(sessionToken) {
+  //   const self = this;
 
-    // return new Promise 
+  //   // return new Promise 
 
-    this.service({
-      method: 'GET',
-      url: `${self._urls.session}.json`,
-      headers: {
-        'QB-Token': sessionToken
-      }
-    }).then( (responce) => {
-      const userId = responce.data.session.user_id;
+  //   this.service({
+  //     method: 'GET',
+  //     url: `${self._urls.session}.json`,
+  //     headers: {
+  //       'QB-Token': sessionToken
+  //     }
+  //   }).then( (responce) => {
+  //     const userId = responce.data.session.user_id;
 
-      // if(userId && userId !== 0) {
+  //     // if(userId && userId !== 0) {
         
-      // } 
+  //     // } 
 
-      // Get user info / if session with user id
+  //     // Get user info / if session with user id
 
-      console.log('AA');
-      console.log(responce.data.session.user_id);
+  //     console.log('AA');
+  //     console.log(responce.data.session.user_id);
 
-      // resolve(data);
-    }).catch(function(error) {
-      console.log('BB');
-      console.log(error);
-      // reject(error);
-    });
-  }
+  //     // resolve(data);
+  //   }).catch(function(error) {
+  //     console.log('BB');
+  //     console.log(error);
+  //     // reject(error);
+  //   });
+  // }
 
   _generateAuthMessage(appId, authKey) {
     /**
@@ -167,26 +197,6 @@ class Client extends User {
 
     return Crypto(stingify, salt).toString();
   }
-
-  // createData(className) {
-  //   const token = this.session_token;
-  //   const SDK_version = this.version;
-
-  //   if(!token) {
-  //     throw new Error(ERRORS['AuthorizationRequired'].message);
-  //   }
-
-  //   let service = axios.create({
-  //     baseURL: `https://${this._endpoints.api}/${this._urls.data}/`,
-  //     headers: {
-  //       'QB-SDK': `Quickblox JS SDK ${SDK_version}`,
-  //       'QB-Token': token
-  //     }
-  //   });
-
-  //   return new Data(className, service);
-  // }
-
 }
 
 Object.assign(Client.prototype, eventEmitterMixin);

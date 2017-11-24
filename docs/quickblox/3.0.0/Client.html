@@ -147,7 +147,7 @@ This is the top level component for any Quickblox based application.</p></div>
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type">object</span>
 
 
 
@@ -400,6 +400,22 @@ This is the top level component for any Quickblox based application.</p></div>
     
 
     
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">import Quickblox from &#x27;quickblox-javascript-sdk&#x27;;
+// or require(&#x27;quickblox-javascript-sdk&#x27;);
+// or window.Quickblox
+
+const creds = {
+  &#x27;appId&#x27;: 5,
+  &#x27;authKey&#x27;: &#x27;KnUm1&#x27;,
+  &#x27;authSecret&#x27;: &#x27;MKmn-asd1&#x27;
+};
+
+const clientInstance = new QB(creds);</pre>
+
+
+    
 </dd>
 
     
@@ -428,6 +444,182 @@ This is the top level component for any Quickblox based application.</p></div>
 
     
 
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+            
+<hr>
+<dt>
+    <h4 class="name" id="auth"><span class="type-signature"></span>auth( [userCreds])</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        <p>Autorize client in Server API (without authorize in Chat or Calling).
+There 3 parameters you could pass to auth method:</p>
+<ul>
+<li><p>Nothing.
+At this way you auth by application session with READ only rights;</p>
+</li>
+<li><p>a login &amp; a password or an email &amp; the password.
+At this way you auth as user with User session and CRUD rights;</p>
+</li>
+</ul>
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>userCreds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+|
+
+<span class="param-type">object</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>You</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h5>Example</h5>
+        
+    <pre class="sunlight-highlight-javascript">import Quickblox from &#x27;quickblox-javascript-sdk&#x27;;
+
+const creds = {
+  &#x27;appId&#x27;: 5,
+  &#x27;authKey&#x27;: &#x27;KnUm1&#x27;,
+  &#x27;authSecret&#x27;: &#x27;MKmn-asd1&#x27;
+};
+
+const clientInstance = new QB(creds);
+
+clientInstance.auth().then( (token) =&gt; {
+  console.log(&#x60;Auth successful with token ${token}&#x60;)
+}).catch( (error) =&gt; {
+  console.error(&#x60;Auth successful with token ${err.message}&#x60;);
+});</pre>
+
+
+    
+</dd>
+
+        </dl>
     
 
     
