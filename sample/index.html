@@ -20,13 +20,15 @@
           authSecret: 'SA-h4W-sZgzhO-u'
         };
 
-        const clientInstance = new Quickblox(creds);
+        window.clientInstance = new Quickblox(creds);
 
         clientInstance.auth().then( (token) => {
-          console.log(`Auth successful with token ${token}`)
-        }).catch( (error) => {
-          console.error(`Auth successful with token ${err.message}`);
-        });
+            console.log(`Auth successful with token ${token}`)
+          }).catch( (error) => {
+            console.error(`Auth successful with token ${error.message}`);
+          });
+        
+        
       });
     </script>
   </body>
