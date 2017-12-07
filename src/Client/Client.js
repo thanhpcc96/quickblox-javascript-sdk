@@ -1,4 +1,3 @@
-import Crypto from 'crypto-js/hmac-sha1';
 import axios from 'axios';
 
 import ERRORS from '../Error.js';
@@ -9,6 +8,8 @@ import eventEmitterMixin from '../eventEmitter/eventEmitterMixin.js';
 
 import User from '../User/User.js';
 
+import {generateAuthMessage} from '../AuthHelpers/AuthHelpers.js';
+
 /**
  * Contains all JS SDK API classes and functions.
  * This is the top level component for any Quickblox based application.
@@ -16,7 +17,7 @@ import User from '../User/User.js';
  * @extends {User}
  * 
  * @example
- * import Quickblox from 'quickblox-javascript-sdk';
+ * import Quickblox from 'quickblox';
  * // or require('quickblox-javascript-sdk');
  * // or window.Quickblox
  * 
@@ -144,8 +145,7 @@ class Client extends User {
     const self = this;
 
     return new Promise((resolve, reject) => {
-      let authMessage = this._generateAuthMessage(this._appId, this._authKey);
-      authMessage.signature = this._signAuthMessage(authMessage, this._authSecret);
+      let authMessage = generateAuthMessage(this._appId, this._authKey, this._authSecret);
 
       this.service({
         method: 'POST',
@@ -174,41 +174,6 @@ class Client extends User {
         reject(error);
       });
     });
-  }
-
-  _generateAuthMessage(appId, authKey) {
-    /**
-     * randomNonce - generate 4-digit number 
-     */
-    function randomNonce() {
-      return Math.floor(Math.random() * 10000);
-    }
-
-    /** unixTime - return now in Unix format */
-    function unixTime() {
-      return Math.floor(Date.now() / 1000);
-    }
-
-    return {
-      application_id: appId,
-      auth_key: authKey,
-      nonce: randomNonce(),
-      timestamp: unixTime()
-    };
-  }
-
-  _signAuthMessage(message, salt) {
-    const stingify =  Object.keys(message).map(function(key) {
-      if (typeof message[key] === 'object') {
-        return Object.keys(message[key]).map(function(keySub) {
-          return key + '[' + keySub + ']=' + message[key][keySub];
-        }).sort().join('&');
-      } else {
-        return key + '=' + message[key];
-      }
-    }).sort().join('&');
-
-    return Crypto(stingify, salt).toString();
   }
 }
 
