@@ -40,7 +40,7 @@
 			<li class="dropdown">
 				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#eventEmitterMixin">eventEmitterMixin</a></li>
+					<li><a href="global.html#eventEmitterMixin">eventEmitterMixin</a></li><li><a href="global.html#randomNonce">randomNonce</a></li><li><a href="global.html#unixTime">unixTime</a></li>
 				</ul>
 			</li>
 			
@@ -402,7 +402,7 @@ This is the top level component for any Quickblox based application.</p></div>
     
         <h5>Example</h5>
         
-    <pre class="sunlight-highlight-javascript">import Quickblox from &#x27;quickblox-javascript-sdk&#x27;;
+    <pre class="sunlight-highlight-javascript">import Quickblox from &#x27;quickblox&#x27;;
 // or require(&#x27;quickblox-javascript-sdk&#x27;);
 // or window.Quickblox
 
@@ -451,7 +451,7 @@ const clientInstance = new QB(creds);</pre>
             
 <hr>
 <dt>
-    <h4 class="name" id="auth"><span class="type-signature"></span>auth( [userCreds])</h4>
+    <h4 class="name" id="auth"><span class="type-signature"></span>auth( [creds])</h4>
     
     
 </dt>
@@ -462,11 +462,18 @@ const clientInstance = new QB(creds);</pre>
         <p>Autorize client in Server API (without authorize in Chat or Calling).
 There 3 parameters you could pass to auth method:</p>
 <ul>
-<li><p>Nothing.
-At this way you auth by application session with READ only rights;</p>
-</li>
-<li><p>a login &amp; a password or an email &amp; the password.
-At this way you auth as user with User session and CRUD rights;</p>
+<li>Nothing.
+At this way you auth by application session with READ only rights;</li>
+</ul>
+<ul>
+<li><p>Quickblox Session token.
+You pass token and SDK gives from Quickblox server all information
+about session and user if this User session token. 
+If is Application session token user will be null.</p>
+<ul>
+<li>A login &amp; a password or an email &amp; the password.
+At this way you auth as user with User session and CRUD rights;</li>
+</ul>
 </li>
 </ul>
     </div>
@@ -505,15 +512,12 @@ At this way you auth as user with User session and CRUD rights;</p>
 
         <tr>
             
-                <td class="name"><code>userCreds</code></td>
+                <td class="name"><code>creds</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
-|
-
 <span class="param-type">object</span>
 
 
@@ -535,7 +539,143 @@ At this way you auth as user with User session and CRUD rights;</p>
 
             
 
-            <td class="description last"><p>You</p></td>
+            <td class="description last"><p>Data to authorize in Quickblox API Server</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>creds[].token</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Quicblox Session Token (Application or User)</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>creds[].login</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Login of existed user (uses ONLY with password property)</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>creds[].email</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Email of existed user (uses ONLY with password property)</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>creds[].password</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Password of existed user (uses with login or email property)</p></td>
         </tr>
 
     
@@ -607,6 +747,16 @@ const creds = {
   &#x27;authSecret&#x27;: &#x27;MKmn-asd1&#x27;
 };
 
+// or 
+// const creds = {&#x27;token&#x27;: &#x27;JydmzsuUjhnzx8asj&#x27;};
+
+// or 
+// const userCreds = {
+//   email: &#x27;helloworld@net.com&#x27;,
+//   password: &#x27;secretword&#x27;
+// }
+// const clientInstance = new QB(userCreds);
+
 const clientInstance = new QB(creds);
 
 clientInstance.auth().then( (token) =&gt; {
@@ -671,7 +821,7 @@ clientInstance.auth().then( (token) =&gt; {
 	</span>
 
 <span class="jsdoc-message">
-	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.4</a>
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a>
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

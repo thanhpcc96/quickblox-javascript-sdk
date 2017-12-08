@@ -29,7 +29,7 @@ import {generateAuthMessage} from '../AuthHelpers/AuthHelpers.js';
  * 
  * const clientInstance = new QB(creds);
  */
-class Client extends User {
+class Client {
   /**
    * Creates an instance of Client.
    * @param {object} creds - all of this parameters you could found in admin panel.
@@ -40,8 +40,6 @@ class Client extends User {
    * @memberof Client
    */
   constructor(creds, opts = {}) {
-    super();
-
     if(!creds || !creds.appId) {
       throw new Error(Client.ERRORS['InvalidConfigurationError'].message);
     }
@@ -59,6 +57,8 @@ class Client extends User {
 
     this._endpoints = {};
     Object.assign(this._endpoints, defaultEndpoints, opts.endpoints);
+
+    this._user = new User();
 
     this.service = axios.create({
       baseURL: `https://${this._endpoints.api}/`,
@@ -140,6 +140,13 @@ class Client extends User {
         });
       }
     });
+  }
+
+  /**
+   * Register user in Quickblox Server and login
+   */
+  signup() {
+
   }
   _createApplicationSession() {
     const self = this;
