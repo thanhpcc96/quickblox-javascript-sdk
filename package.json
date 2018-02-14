@@ -4,18 +4,17 @@
   "version": "3.0.0",
   "homepage": "https://docsdev.quickblox.com/javascript/Introduction.html",
   "main": "quickblox.min.js",
-  "module": "src/index.js",
+  "module": "src/Client/Client.js",
   "license": "(Apache-2.0)",
   "keywords": [
     "quickblox",
     "javascript",
-    "sdk",
+    "chat",
+    "messaging",
+    "communication",
     "baas",
     "cloud",
     "api",
-    "chat",
-    "communication",
-    "messaging",
     "webrtc"
   ],
   "maintainers": [
@@ -36,7 +35,7 @@
     "url": "https://github.com/QuickBlox/quickblox-javascript-sdk/issues",
     "email": "web@quickblox.com"
   },
-  "eslintIgnore": "**/*{.,-}min.js",
+  "eslintIgnore": ["**/*{.,-}min.js"],
   "autoupdate": {
     "source": "git",
     "target": "git://github.com/QuickBlox/quickblox-javascript-sdk.git",

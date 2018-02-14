@@ -1,20 +1,14 @@
-import axios from 'axios';
-
 import ERRORS from '../Error.js';
 import config from '../config.js';
 import {urls as defaultUrls, endpoints as defaultEndpoints} from '../defaults.js';
 
 import eventEmitterMixin from '../eventEmitter/eventEmitterMixin.js';
 
-import User from '../User/User.js';
-
 import {generateAuthMessage} from '../AuthHelpers/AuthHelpers.js';
 
 /**
  * Contains all JS SDK API classes and functions.
  * This is the top level component for any Quickblox based application.
- * 
- * @extends {User}
  * 
  * @example
  * import Quickblox from 'quickblox';
@@ -58,11 +52,11 @@ class Client {
     this._endpoints = {};
     Object.assign(this._endpoints, defaultEndpoints, opts.endpoints);
 
-    this._user = new User();
+    // this._user = new User();
 
-    this.service = axios.create({
-      baseURL: `https://${this._endpoints.api}/`,
-    });
+    // this.service = axios.create({
+    //   baseURL: `https://${this._endpoints.api}/`,
+    // });
   }
 
   /**
@@ -186,6 +180,6 @@ class Client {
 
 Object.assign(Client.prototype, eventEmitterMixin);
 
-Client.ERRORS = ERRORS;
+Client.Fetch = '2';
 
-export default Client;
+export {Client, ERRORS as QB_ERRORS };

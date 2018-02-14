@@ -5,7 +5,7 @@ const MinifyPlugin = require('babel-minify-webpack-plugin');
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 const webpackConfig = {
-  entry: './src/index.js',
+  entry: './src/Client/Client.js',
   output: {
     library: 'Quickblox',
     libraryTarget: 'umd',
@@ -14,11 +14,6 @@ const webpackConfig = {
   },
   module: {
     rules: [
-      {
-        test: /\.js$/,
-        exclude: [/node_modules/, /\.test.js$/],
-        loader: 'eslint-loader'
-      },
       {
         test: /\.js$/,
         exclude: /node_modules/,

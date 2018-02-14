@@ -20,14 +20,16 @@
           authSecret: 'SA-h4W-sZgzhO-u'
         };
 
-        window.clientInstance = new Quickblox(creds);
-
-        clientInstance.auth().then( (token) => {
-            console.log(`Auth successful with token ${token}`)
-          }).catch( (error) => {
-            console.error(`Auth successful with token ${error.message}`);
-          });
+        const clientInstance = new Quickblox(creds);
+        console.log(Quickblox.ERRORS);
+        clientInstance.Fetch = '1';
         
+        console.log( clientInstance.Fetch );
+        // clientInstance.auth().then( (token) => {
+        //     console.log(`Auth successful with token ${token}`)
+        //   }).catch( (error) => {
+        //     console.error(`Auth successful with token ${error.message}`);
+        //   });
         
       });
     </script>
