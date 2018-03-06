@@ -4,6 +4,7 @@ function Places() {
     this.className = 'Place';
 
     this.items = [];
+    this.MAX_MEDIA = 20;
 }
 
 Places.prototype.sync = function(skip) {
@@ -53,7 +54,13 @@ Places.prototype.create = function(params) {
 };
 
 Places.prototype.getPlace = function(id) {
-    return this.items.find(function(place) {
+    var self = this;
+
+    return self.items.find(function(place) {
+        if(place.media && place.media.length > self.MAX_MEDIA) {
+            place.media.length = self.MAX_MEDIA;
+        }
+
         return place._id === id;
     });
 };
