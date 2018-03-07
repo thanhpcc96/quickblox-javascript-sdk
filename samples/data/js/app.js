@@ -4,10 +4,6 @@
  * DATA SAMPLE
  * Using User Authorization,
  * Custom Objects
- * 
- * Browser supports:
- * IE 11, Edge 12, Safari 8,
- * last 2 version of modern browsers
  */
 
 /* eslint no-alert: "off" */
@@ -555,7 +551,7 @@ App.prototype.renderCheckin = function(placeId) {
         });
 
         // clear form
-        target.parentNode.removeChild(target);
+        $overlay.innerHTML = '';
 
         return false;
     });
