@@ -41,7 +41,7 @@ gulp.task('minify', function () {
 gulp.task('connect', function() {
     gulp.src('./')
     .pipe(webserver({
-        host: 'localhost',
+        host: '192.168.1.180',
         https: true,
         directoryListing: true,
         open: true

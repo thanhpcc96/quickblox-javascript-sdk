@@ -69,11 +69,19 @@ var qbContent = {
             image.src = _URL.createObjectURL(file);
 
             image.onload = function() {
-                resolve(file);
+                if(file.size > 20000000) {
+                    reject({
+                        'error': 'Max limit of size'
+                    });
+                } else {
+                    resolve(file);
+                }
             };
 
             image.onerror = function() {
-                resolve(null);
+                reject({
+                    'error': 'The file is npt valid'
+                });
             };
         });
     },

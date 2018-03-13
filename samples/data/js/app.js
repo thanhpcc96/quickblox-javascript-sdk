@@ -397,7 +397,7 @@ App.prototype.renderPlaceDetailed = function(placeId) {
     }
 
     placeInfo = Object.assign(placeInfo, {
-        'isCanUploadMedia': (mediaCount < 20)
+        'isCanUploadMedia': (mediaCount < CONFIG.MAX_IMAGES)
     });
 
     var $panel = document.getElementById(self.ui.panel);
@@ -438,64 +438,112 @@ App.prototype.renderPlaceDetailed = function(placeId) {
 
     var addNewMediaInp = document.querySelector('.j-add_media');
 
-    addNewMediaInp.addEventListener('change', function(e) {
-        e.preventDefault();
-        
-        var photosCount = document.querySelectorAll('.j-photo').length,
-            limit = 20 - photosCount,
-            validationPromises = [],
-            listPromises = [],
-            warnMessage;
+    function handleNewMedia(event) {
+        event.preventDefault();
 
-        for (var i = 0; i < this.files.length; i++) {
-            validationPromises.push(qbContent.validateImage(this.files[i]));
+        if(this.files.length <= 0) {
+            return false;
         }
+
+        var self = this;
+        var uploadUids = [];
+        var imagesPossiblyCount = CONFIG.MAX_IMAGES - this.files.length;
+
+        var validImages = [];
+
+    }
+
+    addNewMediaInp.addEventListener('change', handleNewMedia);
+
+        // function validateAndUpload(files) {
+        //     if(files.length <= 0) {
+        //         return true;
+        //     } else {
+        //         qbContent.validateImage(files[0])
+        //             .then(function(file) {
+        //                 return qbContent.upload(file);
+        //             }).then(function(uid) {
+        //                 uploadUids.push(uid);
+
+        //                 files.shift();
+        //                 validateAndUpload(files);
+        //             }).catch(function(error) {
+        //                 console.error(error);
+        //             });
+        //                 // qbContent.upload(file); return uid
+        //                 //self.places.update({
+        //         //     //         _id: placeId,
+        //         //     //         add_to_set: {
+        //         //     //             media: uids
+        //         //     //         }
+        //         //     //     }).then(function(res) {
+        //         //     //         self.places.updateLocal(res);
+
+        //         //     //         if(self.activePage === 'place_detailed') {
+        //         //     //             self.renderPlaceDetailed(placeId);
+        //         //     //         }
+        //         //     //     });
+                    
+        //     }
+        // }
+
+        // var inputFiles = Array.from(this.files);
+
+        // validateAndUpload(inputFiles);
+
+        // for (var i = 0; i < this.files.length; i++) {
+        //     validationPromises.push(qbContent.validateImage(this.files[i]));
+        // }
+
+        // function upload([]) {
+
+        // }
         
-        Promise.all(validationPromises).then(function(files) {
-            collectPromises: for (var i = 0; i < files.length; i++) {
-                var file = files[i];
+        // Promise.all(validationPromises).then(function(files) {
+        //     // collectPromises: for (var i = 0; i < files.length; i++) {
+        //     //     var file = files[i];
 
-                if (!file) {
-                    warnMessage = 'Some files will not be uploaded (incorrect image type)';
-                    console.warn(warnMessage);
+        //     //     if (!file) {
+        //     //         warnMessage = 'Some files will not be uploaded';
+        //     //         console.warn(warnMessage);
 
-                    continue collectPromises;
-                } else {
-                    limit--;
-                }
+        //     //         continue collectPromises;
+        //     //     } else {
+        //     //         limit--;
+        //     //     }
 
-                if (limit < 0) {
-                    var warnInfo = 'Max limit of upload images is 20, some images will not be uploaded';
+        //     //     if (limit < 0) {
+        //     //         var warnInfo = 'Max limit of upload images is 20, some images will not be uploaded';
 
-                    console.warn(warnInfo);
-                    alert(warnInfo);
+        //     //         console.warn(warnInfo);
+        //     //         alert(warnInfo);
 
-                    break collectPromises;
-                }
+        //     //         break collectPromises;
+        //     //     }
 
-                listPromises.push(qbContent.upload(file));
-            }
+        //     //     listPromises.push(qbContent.upload(file));
+        //     // }
 
-            if (warnMessage) {
-                alert(warnMessage);
-            }
+        //     // if (warnMessage) {
+        //     //     alert(warnMessage);
+        //     // }
 
-            Promise.all(listPromises).then(function(uids) {
-                self.places.update({
-                    _id: placeId,
-                    add_to_set: {
-                        media: uids
-                    }
-                }).then(function(res) {
-                    self.places.updateLocal(res);
+        //     // Promise.all(listPromises).then(function(uids) {
+        //     //     self.places.update({
+        //     //         _id: placeId,
+        //     //         add_to_set: {
+        //     //             media: uids
+        //     //         }
+        //     //     }).then(function(res) {
+        //     //         self.places.updateLocal(res);
 
-                    if(self.activePage === 'place_detailed') {
-                        self.renderPlaceDetailed(placeId);
-                    }
-                });
-            });
-        });
-    });
+        //     //         if(self.activePage === 'place_detailed') {
+        //     //             self.renderPlaceDetailed(placeId);
+        //     //         }
+        //     //     });
+        //     // });
+        // });
+    // });
 };
 
 App.prototype.renderCheckin = function(placeId) {

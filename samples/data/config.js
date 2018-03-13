@@ -18,5 +18,9 @@ var QB_CONFIG = {
   }
 };
 
+window.CONFIG = {
+  MAX_IMAGES: 20
+};
+
 window.QB_CREDS = QB_CREDS;
 window.QB_CONFIG = QB_CONFIG;
