@@ -72,7 +72,9 @@ function ChatProxy(service) {
         var originSendFunction = self.Client.send;
 
         self.Client.send = function(stanza) {
-            Utils.QBLog('[Chat]', 'SENT:', stanza.toString());
+            var str = (stanza === '') ? 'keepalive' : stanza.toString();
+
+            Utils.QBLog('[Chat]', 'SENT:', str);
             originSendFunction.call(self.Client, stanza);
         };
 
@@ -83,9 +85,13 @@ function ChatProxy(service) {
         
     // Check the chat connection (return true/false)
     this.isConnected = false;
+    // Check the chat connecting state (return true/false)
+    this._isConnecting = false;
 
     this._isLogout = false;
     this._isDisconnected = false;
+
+    this._keepaliveTimer = undefined;
 
     //
     this.helpers = new Helpers();
@@ -740,7 +746,8 @@ ChatProxy.prototype = {
                                 self.roster.contacts = contacts;
                                 // send first presence if user is online
                                 self.connection.send($pres());
-
+                                self._enableKeepalive();
+                                
                                 callback(null, self.roster.contacts);
                             });
                         } else {
@@ -788,10 +795,16 @@ ChatProxy.prototype = {
 
         /** connect for node */
         if(!Utils.getEnv().browser) {
+            if (self._isConnecting) {
+                return;
+            }
+
             if (self.isConnected) {
                 callback(null, self.roster.contacts);
                 return;
             }
+
+            self._isConnecting = true;
 
             self.Client.on('connect', function() {
                 Utils.QBLog('[Chat]', 'CONNECT - ' + chatUtils.getLocalTime());
@@ -818,6 +831,7 @@ ChatProxy.prototype = {
                 self.helpers.setUserCurrentJid(self.helpers.userCurrentJid(self.Client));
 
                 self.isConnected = true;
+                self._isConnecting = false;
     
                 if (typeof callback === 'function') {
                     var presence = chatUtils.createStanza(XMPP.Stanza, null, 'presence');
@@ -826,6 +840,7 @@ ChatProxy.prototype = {
                         self.roster.contacts = contacts;
                         // send first presence if user is online
                         self.Client.send(presence);
+                        self._enableKeepalive();
                         
                         callback(null, self.roster.contacts);
                     });
@@ -863,6 +878,7 @@ ChatProxy.prototype = {
                 }
 
                 self.isConnected = false;
+                self._isConnecting = false;
                 self.Client._events = {};
                 self.Client._eventsCount = 0;
             });
@@ -876,6 +892,7 @@ ChatProxy.prototype = {
                 }
 
                 self.isConnected = false;
+                self._isConnecting = false;
             });
 
             self.Client.options.jid = userJid;
@@ -1163,6 +1180,8 @@ ChatProxy.prototype = {
         this._isLogout = true;
         this.helpers.setUserCurrentJid('');
 
+        clearInterval(this._keepaliveTimer);
+
         if (Utils.getEnv().browser) {
             this.connection.flush();
             this.connection.disconnect();
@@ -1220,6 +1239,19 @@ ChatProxy.prototype = {
         } else {
             self.Client.send(iq);
         }
+    },
+
+    _enableKeepalive: function() {
+        var self = this,
+            TIME_INTERVAL = 55000; // sends whitespace to keepalive connection each 55 seconds
+        
+        self._keepaliveTimer = setInterval(function() {
+            if (Utils.getEnv().browser) {
+                self.connection._data.push('');
+            } else {
+                self.Client.send('');
+            }
+        }, TIME_INTERVAL);
     }
 };
 
