@@ -91,7 +91,7 @@ function ChatProxy(service) {
     this._isLogout = false;
     this._isDisconnected = false;
 
-    this._keepaliveTimer = undefined;
+    this._checkConnectionTimer = undefined;
 
     //
     this.helpers = new Helpers();
@@ -670,19 +670,39 @@ ChatProxy.prototype = {
         Utils.QBLog('[Chat]', 'Connect with parameters ' + JSON.stringify(params));
 
         var self = this,
-            err, rooms;
+            err,
+            rooms;
 
         var userJid = chatUtils.buildUserJid(params);
 
+        if (self._isConnecting) {
+            return;
+        }
+
+        if (self.isConnected) {
+            callback(null, self.roster.contacts);
+            return;
+        }
+
+        self._isConnecting = true;
+
         /** Connect for browser env. */
-        if(Utils.getEnv().browser) {
+        if (Utils.getEnv().browser) {
+
             self.connection.connect(userJid, params.password, function(status) {
                 switch (status) {
                     case Strophe.Status.ERROR:
+                        Utils.QBLog('[Chat]', 'Status.ERROR');
+
+                        self.isConnected = false;
+                        self._isConnecting = false;
+
                         err = Utils.getError(422, 'Status.ERROR - An error has occurred');
+
                         if (typeof callback === 'function') {
                             callback(err, null);
                         }
+
                         break;
                     case Strophe.Status.CONNECTING:
                         Utils.QBLog('[Chat]', 'Status.CONNECTING');
@@ -691,10 +711,15 @@ ChatProxy.prototype = {
                     case Strophe.Status.CONNFAIL:
                         Utils.QBLog('[Chat]', 'Status.CONNFAIL');
 
+                        self.isConnected = false;
+                        self._isConnecting = false;
+
                         err = Utils.getError(422, 'Status.CONNFAIL - The connection attempt failed');
+
                         if (typeof callback === 'function') {
                             callback(err, null);
                         }
+                        
                         break;
                     case Strophe.Status.AUTHENTICATING:
                         Utils.QBLog('[Chat]', 'Status.AUTHENTICATING');
@@ -702,13 +727,16 @@ ChatProxy.prototype = {
                     case Strophe.Status.AUTHFAIL:
                         Utils.QBLog('[Chat]', 'Status.AUTHFAIL');
 
+                        self.isConnected = false;
+                        self._isConnecting = false;
+
                         err = Utils.getError(401, 'Status.AUTHFAIL - The authentication attempt failed');
 
                         if (typeof callback === 'function') {
                             callback(err, null);
                         }
 
-                        if(self._isDisconnected && typeof self.onReconnectFailedListener === 'function'){
+                        if(!self.isConnected && typeof self.onReconnectFailedListener === 'function'){
                             Utils.safeCallbackCall(self.onReconnectFailedListener, err);
                         }
 
@@ -727,7 +755,10 @@ ChatProxy.prototype = {
                         }
 
                         self._isLogout = false;
-                        self._isDisconnected = false;
+                        self._isConnecting = false;
+                        self.isConnected = true;
+
+                        clearInterval(this._checkConnectionTimer);
 
                         self.helpers.setUserCurrentJid(self.helpers.userCurrentJid(self.connection));
 
@@ -746,14 +777,15 @@ ChatProxy.prototype = {
                                 self.roster.contacts = contacts;
                                 // send first presence if user is online
                                 self.connection.send($pres());
-                                self._enableKeepalive();
-                                
+                                                                
                                 callback(null, self.roster.contacts);
                             });
                         } else {
                             // recover the joined rooms
                             rooms = Object.keys(self.muc.joinedRooms);
+
                             Utils.QBLog('[Chat]', 'Re-joining ' + rooms.length + " rooms..");
+
                             for (var i = 0, len = rooms.length; i < len; i++) {
                                 self.muc.join(rooms[i]);
                             }
@@ -774,15 +806,17 @@ ChatProxy.prototype = {
                         self.connection.reset();
 
                         // fire 'onDisconnectedListener' only once
-                        if (!self._isDisconnected && typeof self.onDisconnectedListener === 'function'){
+                        if (self.isConnected && typeof self.onDisconnectedListener === 'function'){
                             Utils.safeCallbackCall(self.onDisconnectedListener);
                         }
 
-                        self._isDisconnected = true;
+                        self.isConnected = false;
+                        self._isConnecting = false;
 
-                        // reconnect to chat
+                        // reconnect to chat and enable check connection
                         if (!self._isLogout) {
                             self.connect(params);
+                            self._checkConnection(params);
                         }
 
                         break;
@@ -795,17 +829,6 @@ ChatProxy.prototype = {
 
         /** connect for node */
         if(!Utils.getEnv().browser) {
-            if (self._isConnecting) {
-                return;
-            }
-
-            if (self.isConnected) {
-                callback(null, self.roster.contacts);
-                return;
-            }
-
-            self._isConnecting = true;
-
             self.Client.on('connect', function() {
                 Utils.QBLog('[Chat]', 'CONNECT - ' + chatUtils.getLocalTime());
             });
@@ -830,6 +853,9 @@ ChatProxy.prototype = {
     
                 self.helpers.setUserCurrentJid(self.helpers.userCurrentJid(self.Client));
 
+                clearInterval(this._checkConnectionTimer);
+
+                self._isLogout = false;
                 self.isConnected = true;
                 self._isConnecting = false;
     
@@ -840,7 +866,6 @@ ChatProxy.prototype = {
                         self.roster.contacts = contacts;
                         // send first presence if user is online
                         self.Client.send(presence);
-                        self._enableKeepalive();
                         
                         callback(null, self.roster.contacts);
                     });
@@ -881,6 +906,12 @@ ChatProxy.prototype = {
                 self._isConnecting = false;
                 self.Client._events = {};
                 self.Client._eventsCount = 0;
+
+                // reconnect to chat and enable check connection
+                if (!self._isLogout) {
+                    self.connect(params);
+                    self._checkConnection(params);
+                }
             });
             
             self.Client.on('error', function (e) {
@@ -1180,8 +1211,6 @@ ChatProxy.prototype = {
         this._isLogout = true;
         this.helpers.setUserCurrentJid('');
 
-        clearInterval(this._keepaliveTimer);
-
         if (Utils.getEnv().browser) {
             this.connection.flush();
             this.connection.disconnect();
@@ -1234,24 +1263,22 @@ ChatProxy.prototype = {
             xmlns: chatUtils.MARKERS.CARBONS
         });
 
-        if(Utils.getEnv().browser) {
+        if (Utils.getEnv().browser) {
             self.connection.sendIQ(iq);
         } else {
             self.Client.send(iq);
         }
     },
 
-    _enableKeepalive: function() {
-        var self = this,
-            TIME_INTERVAL = 55000; // sends whitespace to keepalive connection each 55 seconds
-        
-        self._keepaliveTimer = setInterval(function() {
-            if (Utils.getEnv().browser) {
-                self.connection._data.push('');
-            } else {
-                self.Client.send('');
+    _checkConnection: function(params) {
+        var self = this;
+
+        self._checkConnectionTimer = setInterval(function() {
+            console.log('CHECK CONNECTION');
+            if (!self._isLogout && !self.isConnected) {
+                self.connect(params);
             }
-        }, TIME_INTERVAL);
+        }, 10000);
     }
 };
 
