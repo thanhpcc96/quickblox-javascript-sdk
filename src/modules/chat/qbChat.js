@@ -1265,12 +1265,12 @@ ChatProxy.prototype = {
     },
 
     _checkConnection: function(params) {
+        var self = this;
+        
         if (self._isLogout) {
             return;
         }
         
-        var self = this;
-
         self.connect(params);
 
         self._checkConnectionTimer = setInterval(function() {
