@@ -719,7 +719,7 @@ ChatProxy.prototype = {
                         if (typeof callback === 'function') {
                             callback(err, null);
                         }
-                        
+
                         break;
                     case Strophe.Status.AUTHENTICATING:
                         Utils.QBLog('[Chat]', 'Status.AUTHENTICATING');
@@ -814,10 +814,7 @@ ChatProxy.prototype = {
                         self._isConnecting = false;
 
                         // reconnect to chat and enable check connection
-                        if (!self._isLogout) {
-                            self.connect(params);
-                            self._checkConnection(params);
-                        }
+                        self._checkConnection(params);
 
                         break;
                     case Strophe.Status.ATTACHED:
@@ -908,10 +905,7 @@ ChatProxy.prototype = {
                 self.Client._eventsCount = 0;
 
                 // reconnect to chat and enable check connection
-                if (!self._isLogout) {
-                    self.connect(params);
-                    self._checkConnection(params);
-                }
+                self._checkConnection(params);
             });
             
             self.Client.on('error', function (e) {
@@ -1271,14 +1265,19 @@ ChatProxy.prototype = {
     },
 
     _checkConnection: function(params) {
+        if (self._isLogout) {
+            return;
+        }
+        
         var self = this;
 
+        self.connect(params);
+
         self._checkConnectionTimer = setInterval(function() {
-            console.log('CHECK CONNECTION');
-            if (!self._isLogout && !self.isConnected) {
+            if (!self.isConnected) {
                 self.connect(params);
             }
-        }, 10000);
+        }, config.chatConnectionTimeInterval * 1000);
     }
 };
 
