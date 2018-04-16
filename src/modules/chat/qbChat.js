@@ -773,7 +773,7 @@ ChatProxy.prototype = {
                                 self.roster.contacts = contacts;
                                 // send first presence if user is online
                                 self.connection.send($pres());
-                                                                
+
                                 callback(null, self.roster.contacts);
                             });
                         } else {
