@@ -1277,7 +1277,7 @@ ChatProxy.prototype = {
             if (!self.isConnected) {
                 self.connect(params);
             }
-        }, config.chatConnectionTimeInterval * 1000);
+        }, config.chatReconnectionTimeInterval * 1000);
     }
 };
 

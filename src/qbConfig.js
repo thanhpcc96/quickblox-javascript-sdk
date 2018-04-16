@@ -103,7 +103,7 @@ var config = {
     file: null
   },
   addISOTime: false,
-  chatConnectionTimeInterval: 10
+  chatReconnectionTimeInterval: 10
 };
 
 config.set = function(options) {
