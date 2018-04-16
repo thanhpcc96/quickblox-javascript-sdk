@@ -28,9 +28,7 @@ function Connection() {
     conn.xmlOutput = function(data) {
       if (data.childNodes[0]) {
         for (var i = 0, len = data.childNodes.length; i < len; i++) {
-          var str = (data.childNodes[i] === '') ? 'keepalive' : data.childNodes[i];
-
-          Utils.QBLog('[QBChat]', 'SENT:', str);
+          Utils.QBLog('[QBChat]', 'SENT:', data.childNodes[i]);
         }
       }
     };
@@ -39,9 +37,7 @@ function Connection() {
       Utils.QBLog('[QBChat]', 'RECV:', data);
     };
     conn.xmlOutput = function(data) {
-      var str = (data === '') ? 'keepalive' : data;
-
-      Utils.QBLog('[QBChat]', 'SENT:', str);
+      Utils.QBLog('[QBChat]', 'SENT:', data);
     };
   }
 

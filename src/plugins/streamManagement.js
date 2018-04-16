@@ -160,13 +160,8 @@ StreamManagement.prototype._addEnableHandlers = function () {
 };
 
 StreamManagement.prototype.send = function (stanza, message) {
-    var self = this;
-
-    if (!stanza) {
-        return true;
-    }
-
-    var stanzaXML = stanza.nodeTree ? this._parser.parseFromString(stanza.nodeTree.outerHTML, "application/xml").childNodes[0] : stanza,
+    var self = this,
+        stanzaXML = stanza.nodeTree ? this._parser.parseFromString(stanza.nodeTree.outerHTML, "application/xml").childNodes[0] : stanza,
         tagName = stanzaXML.name || stanzaXML.tagName || stanzaXML.nodeTree.tagName,
         type = chatUtils.getAttr(stanzaXML, 'type'),
         bodyContent = chatUtils.getElementText(stanzaXML, 'body') || '',

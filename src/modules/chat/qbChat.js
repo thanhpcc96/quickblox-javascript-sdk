@@ -72,9 +72,7 @@ function ChatProxy(service) {
         var originSendFunction = self.Client.send;
 
         self.Client.send = function(stanza) {
-            var str = (stanza === '') ? 'keepalive' : stanza.toString();
-
-            Utils.QBLog('[Chat]', 'SENT:', str);
+            Utils.QBLog('[Chat]', 'SENT:', stanza.toString());
             originSendFunction.call(self.Client, stanza);
         };
 
@@ -87,9 +85,7 @@ function ChatProxy(service) {
     this.isConnected = false;
     // Check the chat connecting state (return true/false)
     this._isConnecting = false;
-
     this._isLogout = false;
-    this._isDisconnected = false;
 
     this._checkConnectionTimer = undefined;
 
