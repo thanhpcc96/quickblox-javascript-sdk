@@ -1,6 +1,6 @@
 {
   "name": "quickblox",
-  "description": "QuickBlox JavaScript SDK",
+  "description": "QuickBlox JavaScript SDK, eidt lib vi bon viet lib viet ngu vcd",
   "version": "2.11.0",
   "homepage": "https://quickblox.com/developers/Javascript",
   "main": "src/qbMain.js",
